@@ -10,20 +10,20 @@ def ddmmtoddd(lon, lat):
     return lon, lat #fuck dms
 
 def read_spd():
-    speed = 0
     gps = serial.Serial('/dev/ttyAML2', 9600, timeout=0.2) #NanoPiK2
     while True:
         gps_recv = gps.readline().decode('ascii', errors='replace')
         if gps_recv.startswith('$'):
             rmc = pynmea2.parse(gps_recv)
             if gps_recv.startswith('$GNVTG'):
-                speed = float(rmc.spd_over_grnd_kmph)
-                return speed
-        else:
-            return speed
-            #print("Speed:",float(rmc.spd_over_grnd_kmph),"km/h")
+                try:
+                    speed = float(rmc.spd_over_grnd_kmph)
+                    print("Speed:",float(rmc.spd_over_grnd_kmph),"km/h")
+                    return speed
+                except:
+                    speed = 0 #Default Stationary Speed
+                    return speed
 def read_geo():
-    lon, lat, alt = 113.95705, 22.539067, 25
     gps = serial.Serial('/dev/ttyAML2', 9600, timeout=0.2) #NanoPiK2
     while True:
         gps_recv = gps.readline().decode('ascii', errors='replace')
@@ -36,14 +36,16 @@ def read_geo():
                 else:
                     status = "等待定位"
                 '''
-                lon, lat = ddmmtoddd(float(rmc.lon) ,float(rmc.lat))
-                alt = float(rmc.altitude)
-                #print("双模定位状态:" + status)
-                #print('GPS+BD availabe:', rmc.num_sats)
-                #print("Lat:",lat,"Lon:",lon,"Alt:",float(rmc.altitude),"m")
-                return lon, lat, alt
-        else:
-            return lon, lat, alt
+                try:
+                    lon, lat = ddmmtoddd(float(rmc.lon) ,float(rmc.lat))
+                    alt = float(rmc.altitude)
+                    #print("双模定位状态:" + status)
+                    print('GPS+BD availabe:', rmc.num_sats)
+                    print("Lat:",lat,"Lon:",lon,"Alt:",float(rmc.altitude),"m")
+                    return lon, lat, alt
+                except:
+                    lon, lat, alt = 113.93900, 22.525707, 25.4 #Default Location
+                    return lon, lat, alt
         '''
         elif gps_recv.startswith('$GPGSV') or gps_recv.startswith('$BDGSV'):
                 if gps_recv.startswith('$GPGSV'):
