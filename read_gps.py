@@ -21,8 +21,9 @@ def read_spd():
                     print("Speed:",float(rmc.spd_over_grnd_kmph),"km/h")
                     return speed
                 except:
-                    speed = 0 #Default Stationary Speed
+                    speed = 0
                     return speed
+
 def read_geo():
     gps = serial.Serial('/dev/ttyAML2', 9600, timeout=0.2) #NanoPiK2
     while True:
@@ -39,13 +40,19 @@ def read_geo():
                 try:
                     lon, lat = ddmmtoddd(float(rmc.lon) ,float(rmc.lat))
                     alt = float(rmc.altitude)
+                    print("GPS Geo")
+                    return lon, lat, alt
                     #print("双模定位状态:" + status)
-                    print('GPS+BD availabe:', rmc.num_sats)
-                    print("Lat:",lat,"Lon:",lon,"Alt:",float(rmc.altitude),"m")
-                    return lon, lat, alt
+                    #print('GPS+BD availabe:', rmc.num_sats)
+                    #print("Lat:",lat,"Lon:",lon,"Alt:",float(rmc.altitude),"m")
                 except:
-                    lon, lat, alt = 113.93900, 22.525707, 25.4 #Default Location
+                    lon, lat, alt = 113.9390, 22.5257, 25.4
+                    print("Default Geo1")
                     return lon, lat, alt
+        else:
+            lon, lat, alt = 113.9390, 22.5257, 25.4
+            print("Default Geo2")
+            return lon, lat, alt
         '''
         elif gps_recv.startswith('$GPGSV') or gps_recv.startswith('$BDGSV'):
                 if gps_recv.startswith('$GPGSV'):
