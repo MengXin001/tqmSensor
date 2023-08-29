@@ -1,0 +1,67 @@
+html,
+body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+p {
+    font-size: 12px;
+    text-align: center"
+
+}
+
+h3 {
+    display: block;
+    padding-left: 20px;
+    color: black;
+    text-align: center;
+    float: left;
+}
+
+.sc {
+    height: 100vh;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+}
+
+.main {
+    display: flex;
+    position: relative;
+    flex-grow: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.mainmap {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    position: relative
+}
+
+.menu {
+    width: 30%;
+    min-width: 300px;
+    flex-direction: column;
+    display: flex;
+    position: relative;
+    background-color: #fff;
+}
+
+#switchradar,
+#switchmap {
+    margin-top: 20px;
+    display: flex;
+    position: relative;
+    padding-left: 5%
+}
+
+html {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji
+}

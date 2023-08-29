@@ -1,0 +1,125 @@
+<head>
+    <meta charset="utf-8">
+    <title>tqmps</title>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-language/v1.0.0/mapbox-gl-language.js'></script>
+    <link href="https://cdn.jsdelivr.net/npm/mapbox-gl-controls@2.3.5/lib/controls.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/city-selector-control@0.2.2/dist/index.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/city-selector-control@0.2.2/dist/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="sc">
+        <div id="app">
+            <el-header>
+                <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+                    <h3>tqm Sensor</h3>
+                    <el-menu-item index="1">处理中心</el-menu-item>
+                    <el-submenu index="2">
+                        <template slot="title">我的工作台</template>
+                        <el-menu-item index="2-1">Railway Map</el-menu-item>
+                        <el-menu-item index="2-2">Base Map (Mapping)</el-menu-item>
+                        <el-menu-item index="2-3">Satellite GEOINT</el-menu-item>
+                        <el-submenu index="2-4">
+                            <template slot="title">Ponit Of Interesting</template>
+                            <el-menu-item index="2-4-1">Disaster Observation</el-menu-item>
+                            <el-menu-item index="2-4-2">选项2</el-menu-item>
+                            <el-menu-item index="2-4-3">选项3</el-menu-item>
+                        </el-submenu>
+                    </el-submenu>
+                    <el-menu-item index="3" disabled>消息中心</el-menu-item>
+                    <el-menu-item index="4" disabled><a href="/">广东省一体化(Disabled)</a></el-menu-item>
+                </el-menu>
+            </el-header>
+        </div>
+        <div class="main">
+            <div class="menu" id="contorlmap">
+                <div id="switchmap">
+                    <p>Set Map</p>
+                    <el-radio-group v-model="radio1" @change="Changemap" size="small" style="padding-left: 5%;">
+                        <el-radio-button label="light-v10">Light</el-radio-button>
+                        <el-radio-button label="satellite-v9">Sat</el-radio-button>
+                        <el-radio-button label="dark-v9">Dark</el-radio-button>
+                        <el-radio-button label="streets-v11">Streets</el-radio-button>
+                    </el-radio-group>
+                </div>
+                <div id="switchradar">
+                    <p>CAPPI</p>
+                    <el-switch v-model="value1" @change="Changeradar" active-color="#13ce66" inactive-color="#ff4949" style="padding-left: 10%;padding-top: 1%;">
+                    </el-switch>
+                    <p style="padding-left: 5%;">{{radartime}}</p>
+                </div>
+                <div id="sensorinfo" style="padding-left: 5%">
+                    <div class="line" style="border-bottom:1px solid rgb(155 155 155 / 52%)"></div>
+                    <h4 id="status">tqm sensor: Offline</h4>
+                    <p id="time"></p>
+                    <p id="pres"></p>
+                    <p id="temp"></p>
+					<p id="dw"></p>
+                    <p id="rh"></p>
+                    <p id="gps"></p>
+					<p id="height"></p>
+                    <p id="speed"></p>
+                </div>
+            </div>
+            <div id="container" class="mainmap"></div>
+        </div>
+    </div>
+    <link rel="stylesheet" href="./index.css">
+</body>
+
+</html>
+<script src="./map.js"></script>
+<script>
+    new Vue({
+        el: "#app",
+        data: function() {
+            return {
+                activeIndex: '1',
+            };
+        },
+        methods: {
+            handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+            }
+        }
+    })
+    new Vue({
+        el: "#contorlmap",
+        data: function() {
+            return {
+                radio1: 'light-v10',
+                value1: false,
+                radartime: ''
+            };
+        },
+        methods: {
+            Changemap() {
+                map.setStyle('mapbox://styles/mapbox/' + this.radio1);
+            },
+            Changerail() {
+                addrail()
+            },
+            Changeradar() {
+                if (this.value1 === false) {
+                    hide()
+                } else {
+                    fetch("https://weather.121.com.cn/data_cache/contour/radar/radarContour.json")
+                        .then((res) => res.json())
+                        .then((time) => {
+                            let rtime = time.times.reverse()
+                            this.radartime = rtime[0]
+                        });
+                    add();
+                }
+            }
+        }
+    })
+</script>
