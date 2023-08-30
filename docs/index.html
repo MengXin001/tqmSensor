@@ -112,7 +112,7 @@
                 if (this.value1 === false) {
                     hide()
                 } else {
-                    fetch("https://weather.121.com.cn/data_cache/contour/radar/radarContour.json")
+                    fetch("http://119.91.72.159//data_cache/contour/radar/radarContour.json")
                         .then((res) => res.json())
                         .then((time) => {
                             let rtime = time.times.reverse()

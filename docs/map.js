@@ -40,7 +40,7 @@ function add() {
     }
     map.addSource('image', {
         type: 'image',
-        url: 'https://weather.121.com.cn/data_cache/szImages/radar/png16.png',
+        url: 'http://119.91.72.159/data_cache/szImages/radar/png16.png',
         coordinates: [
             [108.505, 26.0419],
             [117.505, 26.0419],
@@ -232,7 +232,7 @@ function reloadpoints(async = false) {
             document.getElementById('status').innerHTML = "tqm sensor: " + data[1].status
         }
     };
-    request.open("GET", "https://track.storm-chasers.cn/api/get_instrument_dataset", async);
+    request.open("GET", "http://119.91.72.159/api/get_instrument_dataset", async);
     request.send();
 }
 reloadpoints()
