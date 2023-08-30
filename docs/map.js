@@ -30,7 +30,7 @@ map.on('load', function() {
         ],
         tileSize: 256
     });
-    addty()
+
 });
 
 function add() {
@@ -85,21 +85,57 @@ map.addControl(new mapboxgl.ScaleControl({
     unit: 'metric'
 }));
 
-function addty() {
+function checkty() {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+        if (request.status === 200) {
+            res = JSON.parse(request.responseText);
+            data = res
+            for (let i = 0; i < 5; i++) {
+                if (data[i].is_current == 1) {
+                    document.getElementById('currentstorms').innerHTML = "CurrentStorms: " + data[i].name;
+                    addty(data[i].tfbh)
+                }
+            }
+            document.getElementById('checktime').innerHTML = "Checktime: " + data[4].end_time
+        }
+    };
+    request.open("GET", "http://data.istrongcloud.com/v2/data/complex/2023.json");
+    request.send();
+}
+
+function addty(id) {
     var request = new XMLHttpRequest();
     request.onreadystatechange = function() {
         if (request.status === 200) {
             res = JSON.parse(request.responseText)
             trackData = res[0].points
             let typhoonFeatureCollection = pointsToFeatureCollection(trackData)
-            map.addSource('typhoon-source', {
-                type: 'geojson',
-                data: typhoonFeatureCollection,
+            map.addSource('typhoon-source' + id, {
+                    type: 'geojson',
+                    data: typhoonFeatureCollection,
+                })
+                // 当前台风点
+            map.loadImage('./data/typhoon-SuperTY.png', function(error, image) {
+                if (error) throw error;
+                map.addImage('sty', image);
+                map.addLayer({
+                    id: 'points' + id,
+                    type: 'symbol',
+                    source: 'typhoon-source' + id,
+                    layout: {
+                        'icon-image': 'sty',
+                        'icon-size': 0.5,
+                    },
+                    filter: ['all', ['==', '$type', 'Point'],
+                        ['==', 'type', 'current']
+                    ],
+                })
             })
             map.addLayer({
-                    id: 'track-line-layer',
+                    id: 'track-line-layer' + id,
                     type: 'line',
-                    source: 'typhoon-source',
+                    source: 'typhoon-source' + id,
                     paint: {
                         'line-width': 3,
                         'line-color': '#fb5614',
@@ -110,9 +146,9 @@ function addty() {
                 })
                 // 台风预测路径线
             map.addLayer({
-                    id: 'forecast-line-layer',
+                    id: 'forecast-line-layer' + id,
                     type: 'line',
-                    source: 'typhoon-source',
+                    source: 'typhoon-source' + id,
                     paint: {
                         'line-width': 3,
                         'line-dasharray': [3, 3],
@@ -123,7 +159,7 @@ function addty() {
                             '中国香港',
                             '#FF66FF',
                             '中国台湾',
-                            '#FFA040',
+                            '#1f46b0',
                             '日本',
                             '#43FF4B',
                             '美国',
@@ -137,9 +173,9 @@ function addty() {
                 })
                 // 台风路径点
             map.addLayer({
-                    id: 'track-point-layer',
+                    id: 'track-point-layer' + id,
                     type: 'circle',
-                    source: 'typhoon-source',
+                    source: 'typhoon-source' + id,
                     paint: {
                         'circle-radius': [
                             'interpolate', ['cubic-bezier', 0.85, 0.45, 0, 0.65],
@@ -171,22 +207,6 @@ function addty() {
                         ['in', 'type', 'track', 'forecast']
                     ],
                 })
-                // 当前台风点
-            map.loadImage('./data/typhoon-SuperTY.png', function(error, image) {
-                    if (error) throw error;
-                    map.addImage('sty', image);
-                    map.addLayer({
-                        id: 'points',
-                        type: 'symbol',
-                        source: 'typhoon-source',
-                        layout: {
-                            'icon-image': 'sty',
-                        },
-                        filter: ['all', ['==', '$type', 'Point'],
-                            ['==', 'type', 'current']
-                        ],
-                    })
-                })
                 /*var lineStringCoordinates = []
                 for (var i = 0; i < trackData.length; i++) {
                     lineStringCoordinates.push([parseFloat(trackData[i].lng), parseFloat(trackData[i].lat)])
@@ -207,7 +227,7 @@ function addty() {
                 })*/
         }
     };
-    request.open("GET", "http://data.istrongcloud.com/v2/data/complex/202309.json", true);
+    request.open("GET", "http://data.istrongcloud.com/v2/data/complex/" + id + ".json", true);
     request.send();
 }
 
@@ -221,15 +241,15 @@ function reloadpoints(async = false) {
             for (var i in data) {
                 new mapboxgl.Marker().setLngLat([data[i].lon, data[i].lat]).addTo(map)
             }
-            document.getElementById('pres').innerHTML = "Pres: " + data[1].pres.toFixed(3) + "hPa"
-            document.getElementById('temp').innerHTML = "Temp: " + data[1].t
-            document.getElementById('rh').innerHTML = "Relative Humidity: " + data[1].rh + "%"
-            document.getElementById('gps').innerHTML = "GPS location: " + data[1].lon.toFixed(3) + "," + data[1].lat.toFixed(3)
-            document.getElementById('speed').innerHTML = "Speed: " + data[1].speed
-            document.getElementById('height').innerHTML = "Height: " + data[1].height + "m"
-            document.getElementById('dw').innerHTML = "Dew Point: " + data[1].dt
-            document.getElementById('time').innerHTML = "Time: " + data[1].obstime.replace('T', ' ')
-            document.getElementById('status').innerHTML = "tqm sensor: " + data[1].status
+            document.getElementById('pres').innerHTML = "Pres: " + data[0].pres.toFixed(3) + "hPa"
+            document.getElementById('temp').innerHTML = "Temp: " + data[0].t
+            document.getElementById('rh').innerHTML = "Relative Humidity: " + data[0].rh + "%"
+            document.getElementById('gps').innerHTML = "GPS location: " + data[0].lon.toFixed(3) + "," + data[0].lat.toFixed(3)
+            document.getElementById('speed').innerHTML = "Speed: " + data[0].speed
+            document.getElementById('height').innerHTML = "Height: " + data[0].height + "m"
+            document.getElementById('dw').innerHTML = "Dew Point: " + data[0].dt
+            document.getElementById('time').innerHTML = "Time: " + data[0].obstime.replace('T', ' ')
+            document.getElementById('status').innerHTML = "tqm sensor: " + data[0].status
         }
     };
     request.open("GET", "http://119.91.72.159/api/get_instrument_dataset", async);

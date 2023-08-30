@@ -8,11 +8,59 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
-    <script src="https://unpkg.com/vue@2/dist/vue.js"></script>
-    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.zhimg.com/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.zhimg.com/element-ui/lib/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/city-selector-control@0.2.2/dist/index.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/city-selector-control@0.2.2/dist/style.css" rel="stylesheet">
+    <style>
+        .ant-card {
+            bottom: 0.35rem;
+            right: 0;
+            z-index: 99;
+            position: absolute;
+            width: 150px;
+        }
+        
+        .ant-card-body {
+            padding: 0;
+        }
+        
+        .legend {
+            position: absolute;
+            right: 10px;
+            bottom: 30px;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, .5);
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, .1);
+        }
+        
+        .legend-item .circle {
+            border-radius: 50%;
+        }
+        
+        .legend-item {
+            padding: 4px 6px;
+        }
+        
+        .legend.custom {
+            background-color: hsla(0, 0%, 100%, .8);
+        }
+        
+        .legend-item .circle,
+        .legend-item .square {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 2px;
+        }
+        
+        .legend.custom .text {
+            color: #496c8a;
+        }
+    </style>
 </head>
 
 <body>
@@ -67,6 +115,22 @@
                     <p id="gps"></p>
                     <p id="height"></p>
                     <p id="speed"></p>
+                    <h4 id="currentstorms">Current Storms: </h4>
+                    <p id="checktime"></p>
+                </div>
+            </div>
+            <div class="ant-card" id="legendpanel">
+                <div class="ant-card-body">
+                    <div class="legend custom">
+                        <div v-for="(item, index) in legend" :key="index" class="legend-item">
+                            <span class="circle" :style="{ backgroundColor: item[1] }"></span>
+                            <span class="text">{{ item[0] }}</span>
+                        </div>
+                        <div v-for="(item, index) in legendAgency" :key="index" class="legend-item">
+                            <span class="square" :style="{ backgroundColor: item[1] }"></span>
+                            <span class="text">{{ item[0] }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="container" class="mainmap"></div>
@@ -76,7 +140,7 @@
 </body>
 
 </html>
-<script src='https://unpkg.com/@turf/turf@6/turf.min.js'></script>
+<script src='./js/turf.js'></script>
 <script src="./map.js"></script>
 <script>
     new Vue({
@@ -84,6 +148,34 @@
         data: function() {
             return {
                 activeIndex: '1',
+            };
+        },
+        methods: {
+            handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+            }
+        }
+    })
+    new Vue({
+        el: "#legendpanel",
+        data: function() {
+            return {
+                legendAgency: [
+                    ['北京BABJ', '#FF4050'],
+                    ['广州BCGZ', '#FFA040'],
+                    ['中国香港', '#FF66FF'],
+                    ['中国台湾', '#1f46b0'],
+                    ['日本', '#43FF4B'],
+                    ['美国', '#40DDFF']
+                ],
+                legend: [
+                    ['热带低压 TD', '#00ff00'],
+                    ['热带风暴 TS', '#0000ff'],
+                    ['强热带风暴 STS', '#ffff00'],
+                    ['台风 TY', '#ffa000'],
+                    ['强台风 STY', '#ff0000'],
+                    ['超强台风 SuperTY', '#AE00D9'],
+                ],
             };
         },
         methods: {
@@ -112,7 +204,7 @@
                 if (this.value1 === false) {
                     hide()
                 } else {
-                    fetch("http://119.91.72.159//data_cache/contour/radar/radarContour.json")
+                    fetch("http://119.91.72.159/data_cache/contour/radar/radarContour.json")
                         .then((res) => res.json())
                         .then((time) => {
                             let rtime = time.times.reverse()
