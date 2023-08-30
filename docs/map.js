@@ -30,7 +30,7 @@ map.on('load', function() {
         ],
         tileSize: 256
     });
-
+	checkty()
 });
 
 function add() {
