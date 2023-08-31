@@ -30,7 +30,7 @@ map.on('load', function() {
         ],
         tileSize: 256
     });
-	checkty()
+    checkty()
 });
 
 function add() {
@@ -240,16 +240,23 @@ function reloadpoints(async = false) {
             status_text = ''
             for (var i in data) {
                 new mapboxgl.Marker().setLngLat([data[i].lon, data[i].lat]).addTo(map)
+                if (data[i].instrument == "tqm Station") {
+                    pushinfo(data[i], 1)
+                    document.getElementById('temp1').innerHTML = "Temp: " + data[i].t + "  Dew Point: " + data[i].dt
+                    document.getElementById('rh1').innerHTML = "Relative Humidity: " + data[i].rh + "%"
+                    document.getElementById('speed1').innerHTML = "Speed: " + data[i].speed
+                }
+                if (data[i].instrument == "tqm iPhone") {
+                    pushinfo(data[i], 2)
+                }
             }
-            document.getElementById('pres').innerHTML = "Pres: " + data[0].pres.toFixed(3) + "hPa"
-            document.getElementById('temp').innerHTML = "Temp: " + data[0].t
-            document.getElementById('rh').innerHTML = "Relative Humidity: " + data[0].rh + "%"
-            document.getElementById('gps').innerHTML = "GPS location: " + data[0].lon.toFixed(3) + "," + data[0].lat.toFixed(3)
-            document.getElementById('speed').innerHTML = "Speed: " + data[0].speed
-            document.getElementById('height').innerHTML = "Height: " + data[0].height + "m"
-            document.getElementById('dw').innerHTML = "Dew Point: " + data[0].dt
-            document.getElementById('time').innerHTML = "Time: " + data[0].obstime.replace('T', ' ')
-            document.getElementById('status').innerHTML = "tqm sensor: " + data[0].status
+
+            function pushinfo(data, id) {
+                document.getElementById('pres' + id).innerHTML = "Pres: " + data.pres.toFixed(3) + "hPa  MSLP: " + data.mslp.toFixed(3) + "hPa"
+                document.getElementById('gps' + id).innerHTML = "GPS location: " + data.lon.toFixed(3) + "," + data.lat.toFixed(3) + "  Height: " + data.height + "m"
+                document.getElementById('time' + id).innerHTML = "Time: " + data.obstime.replace('T', ' ')
+                document.getElementById('status' + id).innerHTML = data.instrument + ": " + data.status
+            }
         }
     };
     request.open("GET", "http://119.91.72.159/api/get_instrument_dataset", async);
